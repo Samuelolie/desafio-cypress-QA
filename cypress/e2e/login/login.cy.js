@@ -1,17 +1,22 @@
 /// <reference types="cypress" />
+import { faker } from "@faker-js/faker";
 
 describe("Login", () => {
   let email;
   let password;
+  let urlEcommerce = "http://lojaebac.ebaconline.art.br/";
+  let urlRegister = "http://lojaebac.ebaconline.art.br/minha-conta/";
   beforeEach(() => {
-    cy.visit("http://lojaebac.ebaconline.art.br/");
-    email = Cypress.env("email");
-    password = Cypress.env("senha");
+    cy.visit(urlEcommerce);
+    email = faker.internet.email();
+    password = faker.internet.password({ length: 20 });
+    cy.registerEmail(email, password);
   });
 
   it("Login com sucesso", () => {
     cy.login(email, password);
-    cy.get("p strong").first().should("to.contain", "samuoliveira1711");
+    const emailPrefix = email.split("@")[0].toLowerCase();
+    cy.get("p strong").first().should("to.contain", emailPrefix);
   });
 
   it("Login incorreto", () => {
@@ -29,12 +34,12 @@ describe("Login", () => {
 
   it("Logout com sucesso - Botão cabeçalho", () => {
     cy.logoutCabecalho(email, password);
-    cy.url().should("eq", "http://lojaebac.ebaconline.art.br/");
+    cy.url().should("eq", urlEcommerce);
   });
 
   it("Logout com sucesso - Botão Sair", () => {
     cy.logoutSair(email, password);
-    cy.url().should("eq", "http://lojaebac.ebaconline.art.br/minha-conta/");
+    cy.url().should("eq", urlRegister);
     cy.get("#username").should("exist").and("have.value", "");
     cy.get("#password").should("exist").and("have.value", "");
   });
